@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {AxiosError } from "axios";
+import { USE_MOCK_API } from "@/lib/CreateProjectDialog";
+import { createMockProject } from "@/mocks/projects";
 
 
 interface Props {
@@ -75,6 +77,27 @@ export default function CreateProjectDialog({ onCreated }: Props) {
 
   const user = getUserFromToken();
   if (!user) return toast.error("User not authenticated");
+  if (USE_MOCK_API) {
+  createMockProject({
+    name,
+    description,
+    status: status as
+      | "PLANNED"
+      | "IN_PROGRESS"
+      | "COMPLETED"
+      | "ON_HOLD",
+    startDate,
+    endDate: endDate || null,
+    departments: departments.filter(d => departmentIds.includes(d.id)),
+    createdBy: { email: user.email },
+  });
+
+  toast.success("Project created (mock)");
+  onCreated();
+  setOpen(false);
+  return;
+}
+
 
   try {
     setLoading(true);

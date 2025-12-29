@@ -15,11 +15,16 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import CreateProjectDialog from "@/components/Projects/CreateProjectDialog";
+import { USE_MOCK_API } from "@/lib/CreateProjectDialog";
+import { getMockProjects } from "@/mocks/projects";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
 
 type Project = {
   id: string;
   name: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
+  status: "TODO" | "IN_PROGRESS" | "DONE" | "PLANNED" | "COMPLETED" | "ON_HOLD";
   startDate: string;
   endDate: string | null;
   departments: { id: string; name: string }[];
@@ -30,17 +35,39 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // async function fetchProjects() {
+  //   try {
+  //     const res = await api.get("/api/projects");
+  //     setProjects(res.data);
+  //   } catch (error) {
+  //       const err = error as AxiosError<{ error: string }>;
+  //       toast.error(err.response?.data?.error || "Failed to load projects");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
   async function fetchProjects() {
     try {
-      const res = await api.get("/api/projects");
-      setProjects(res.data);
+      if (USE_MOCK_API) {
+        const mockProjects = getMockProjects().map((p) => ({
+          ...p,
+          endDate: p.endDate ?? null,
+          createdBy: p.createdBy ? { id: "", ...p.createdBy } : undefined,
+        }));
+        setProjects(mockProjects);
+        return;
+      }
+
+      // const res = await api.get("/api/projects");
+      // setProjects(res.data);
     } catch (error) {
-        const err = error as AxiosError<{ error: string }>;
-        toast.error(err.response?.data?.error || "Failed to load projects");
+      const err = error as AxiosError<{ error: string }>;
+      toast.error(err.response?.data?.error || "Failed to load projects");
     } finally {
       setLoading(false);
     }
   }
+
 
   useEffect(() => {
     fetchProjects();
@@ -86,6 +113,7 @@ export default function ProjectsPage() {
                   <TableHead>Start</TableHead>
                   <TableHead>End</TableHead>
                   <TableHead>Created By</TableHead>
+                  <TableHead>Tasks</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -135,6 +163,15 @@ export default function ProjectsPage() {
                     <TableCell>
                       {project.createdBy?.email || "-"}
                     </TableCell>
+
+                    <TableCell>
+  <Link href={`/dashboard/projects/${project.id}/tasks`}>
+    <Button size="sm" variant="outline">
+      View Tasks
+    </Button>
+  </Link>
+</TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
