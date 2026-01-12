@@ -58,10 +58,11 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Task Title</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-            <Label>Priority</Label>
+            <Label className="mb-2">Task Title</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} className="mb-2" />
+            <Label className="mb-2">Due Date</Label>
+            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mb-2" />
+            <Label className="mb-2">Priority</Label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}

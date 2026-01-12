@@ -11,8 +11,15 @@ import { getEmployees } from "@/mocks/employees";
 import { assignMockTask } from "@/mocks/tasks";
 import { getDueStatus } from "@/lib/dateUtils";
 import TaskComments from "@/components/tasks/taskComments";
+import { addTaskActivity } from "@/mocks/taskActivity";
+import TaskTimeline from "@/components/tasks/TaskTimeline";
+import { calculateTaskMetrics } from "@/lib/taskMetrics";
+import MetricCard from "@/components/ui/MetricCard";
+
 
 const STATUSES: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
+
+
 
 export default function ProjectTasksPage() {
   const params = useParams();
@@ -20,9 +27,12 @@ export default function ProjectTasksPage() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const employees = getEmployees();
+
   useEffect(() => {
     setTasks(getTasksByProject(projectId));
   }, [projectId]);
+
+  const metrics = calculateTaskMetrics(tasks);
 
   return (
     <div className="space-y-6">
@@ -32,13 +42,20 @@ export default function ProjectTasksPage() {
           Tasks for project ID: {projectId}
         </p>
       </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <MetricCard label="Total Tasks" value={metrics.total} />
+      <MetricCard label="To Do" value={metrics.todo} />
+      <MetricCard label="In Progress" value={metrics.inProgress} />
+      <MetricCard label="Done" value={metrics.done} />
+      <MetricCard label="Overdue" value={metrics.overdue} />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {STATUSES.map((status) => (
           <Card key={status}>
             <CardHeader>
               <CardTitle>{status.replace("_", " ")}</CardTitle>
-            
+
               <CreateTaskDialog projectId={projectId} onCreated={() => {
   setTasks(getTasksByProject(projectId));
 }} />
@@ -56,93 +73,124 @@ export default function ProjectTasksPage() {
                   const dueStatus = getDueStatus(task.dueDate, task.status);
 
                   return (
+                    
                     <div
-                      key={task.id}
-                      className={`border rounded-md p-3 bg-white space-y-3
-                      ${dueStatus === "OVERDUE" ? "border-red-500" : ""}
-                      ${dueStatus === "DUE_TODAY" ? "border-yellow-500" : ""}
-                      ${dueStatus === "UPCOMING" ? "border-green-500" : ""}
-                      `}>
-                      <p className="font-medium">{task.title}</p>
-                      {/* Due Date */}
+  key={task.id}
+  className={`rounded-lg border bg-white p-4 space-y-3 shadow-sm
+    ${dueStatus === "OVERDUE" ? "border-red-500" : ""}
+    ${dueStatus === "DUE_TODAY" ? "border-yellow-500" : ""}
+    ${dueStatus === "UPCOMING" ? "border-green-500" : ""}
+  `}
+>
+  {/* Title */}
+  <h3 className="font-semibold text-base">{task.title}</h3>
+ 
 
-                      {/* Assign employee */}
-                      <Select
-                        value={task.assignedToId || ""}
-                        onValueChange={(value) => {
-                          assignMockTask(projectId, task.id, value);
-                          setTasks(getTasksByProject(projectId));
-                        }}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue
-                            placeholder={
-                              assignedEmployee
-                                ? assignedEmployee.name
-                                : "Unassigned"
-                            }
-                          />
-                        </SelectTrigger>
+  {/* Due date */}
+  <p className="text-sm text-gray-500">
+    Due:{" "}
+    {task.dueDate
+      ? new Date(task.dueDate).toLocaleDateString()
+      : "No due date"}
+  </p>
 
-                        <SelectContent>
-                          {employees.map((emp) => (
-                            <SelectItem key={emp.id} value={emp.id}>
-                              {emp.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+  {/* Assignment */}
+  <div>
+    <label className="text-xs text-gray-400 block mb-1">
+      Assigned Employee
+    </label>
+    <Select
+      value={task.assignedToId || ""}
+      onValueChange={(value) => {
+        assignMockTask(projectId, task.id, value);
 
-                      {/* Status Dropdown */}
-  <Select
-    value={task.status}
-    onValueChange={(value) => {
-      updateMockTaskStatus(projectId, task.id, value as TaskStatus);
-      setTasks(getTasksByProject(projectId));
-    }}
-  >
-    <SelectTrigger className="w-40">
-      <SelectValue />
-    </SelectTrigger>
+        const emp = employees.find((e) => e.id === value);
 
-    <SelectContent>
-      <SelectItem value="TODO">Todo</SelectItem>
-      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-      <SelectItem value="DONE">Done</SelectItem>
-    </SelectContent>
-  </Select>
+  addTaskActivity(
+    task.id,
+    "ASSIGNMENT",
+    emp
+      ? `Assigned to ${emp.name}`
+      : "Unassigned task"
+  );
+        setTasks(getTasksByProject(projectId));
+      }}
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue
+          placeholder={
+            assignedEmployee ? assignedEmployee.name : "Unassigned"
+          }
+        />
+      </SelectTrigger>
 
-                      {/* Status */}
-                      <Badge
-                        variant={
-                          task.status === "DONE"
-                            ? "default"
-                            : task.status === "IN_PROGRESS"
-                            ? "secondary"
-                            : "outline"
-                        }
-                      >
-                       {dueStatus === "OVERDUE"
-                          ? "Overdue"
-                          : dueStatus === "DUE_TODAY"
-                          ? "Due Today"
-                          : dueStatus === "UPCOMING"
-                          ? "Upcoming"
-                          : task.status}
-                           </Badge>
-                           <Badge
-                        variant={
-                          task.priority === "HIGH"
-                            ? "destructive"
-                            : task.priority === "MEDIUM"
-                            ? "secondary"
-                            : "outline"
-                        }
-                      >
-                       {task.priority}
-                           </Badge>
-                      <TaskComments taskId={task.id} author="Admin" />
-                    </div>
+      <SelectContent>
+        {employees.map((emp) => (
+          <SelectItem key={emp.id} value={emp.id}>
+            {emp.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+
+  {/* Status */}
+  <div>
+    <label className="text-xs text-gray-400 block mb-1">Status</label>
+    <Select
+      value={task.status}
+      onValueChange={(value) => {
+        updateMockTaskStatus(projectId, task.id, value as TaskStatus);
+        addTaskActivity(
+    task.id,
+    "STATUS",
+    `Status changed to ${value}`
+  );
+        setTasks(getTasksByProject(projectId));
+      }}
+    >
+
+      <SelectTrigger className="w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="TODO">Todo</SelectItem>
+        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+        <SelectItem value="DONE">Done</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+
+  {/* Badges */}
+  <div className="flex gap-2 pt-2">
+    <Badge
+      variant={
+        dueStatus === "OVERDUE"
+          ? "destructive"
+          : dueStatus === "DUE_TODAY"
+          ? "secondary"
+          : "outline"
+      }
+    >
+      {dueStatus.replace("_", " ")}
+    </Badge>
+
+    <Badge
+      variant={
+        task.priority === "HIGH"
+          ? "destructive"
+          : task.priority === "MEDIUM"
+          ? "secondary"
+          : "outline"
+      }
+    >
+      {task.priority}
+    </Badge>
+  </div>
+    <TaskComments taskId={task.id} author="Admin" role={"ADMIN"} />
+    <TaskTimeline taskId={task.id} />
+</div>
+
                   );
                 })}
                 
