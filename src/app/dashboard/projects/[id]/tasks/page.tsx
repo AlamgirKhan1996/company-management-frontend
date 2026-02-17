@@ -21,7 +21,13 @@ const STATUSES: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 
 
 
+
 export default function ProjectTasksPage() {
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [assignedFilter, setAssignedFilter] = useState<string | "ALL">("ALL");
+  const [activeFilter, setActiveFilter] = useState<TaskStatus | "ALL" | "OVERDUE">("ALL");
+  const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const params = useParams();
   const projectId = params.id as string;
 
@@ -33,6 +39,18 @@ export default function ProjectTasksPage() {
   }, [projectId]);
 
   const metrics = calculateTaskMetrics(tasks);
+  const filteredTasks = tasks.filter((t) => {
+    if (activeFilter !== "ALL") {
+      if (activeFilter === "OVERDUE") {
+        if (getDueStatus(t.dueDate, t.status) !== "OVERDUE") return false;
+      } else if (t.status !== activeFilter) {
+        return false;
+      }
+    }
+    if (searchQuery && !t.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (assignedFilter !== "ALL" && t.assignedToId !== assignedFilter) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -43,11 +61,47 @@ export default function ProjectTasksPage() {
         </p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div onClick={() => setActiveFilter("ALL")}>
       <MetricCard label="Total Tasks" value={metrics.total} />
+      </div>
+      <div onClick={() => setActiveFilter("TODO")}>
       <MetricCard label="To Do" value={metrics.todo} />
+      </div>
+      <div onClick={() => setActiveFilter("IN_PROGRESS")}>
       <MetricCard label="In Progress" value={metrics.inProgress} />
+      </div>
+      <div onClick={() => setActiveFilter("DONE")}>
       <MetricCard label="Done" value={metrics.done} />
+      </div>
+      <div onClick={() => setActiveFilter("OVERDUE")}>
       <MetricCard label="Overdue" value={metrics.overdue} />
+      </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+        <input
+          type="text"
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full md:w-1/3 border rounded-md px-3 py-2 text-sm"
+        />
+        <Select
+          value={assignedFilter}
+          onValueChange={(value) => setAssignedFilter(value)}
+        >
+            <SelectTrigger className="w-full md:w-1/4">
+              <SelectValue placeholder="Filter by employee" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Employees</SelectItem>
+              {employees.map((emp) => (
+                <SelectItem key={emp.id} value={emp.id}>
+                  {emp.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -63,7 +117,7 @@ export default function ProjectTasksPage() {
             </CardHeader>
 
             <CardContent className="space-y-3">
-              {tasks
+              {filteredTasks
                 .filter((t) => t.status === status)
                 .map((task) => {
                   const assignedEmployee = employees.find(
@@ -116,6 +170,7 @@ export default function ProjectTasksPage() {
         setTasks(getTasksByProject(projectId));
       }}
     >
+      
       <SelectTrigger className="w-full">
         <SelectValue
           placeholder={
@@ -187,8 +242,20 @@ export default function ProjectTasksPage() {
       {task.priority}
     </Badge>
   </div>
+  <div className="flex justify-between items-center pt-2">
+    <button
+    onClick={() =>
+      setExpandedTask(expandedTask === task.id? null : task.id)
+    }
+    className="text-sm text-blue-600 hover:underline"
+    >{expandedTask === task.id ? "Hide Details" : "View Details"}</button>
+  </div>
+  {expandedTask === task.id && (
+    <div className="space-y-4 pt-3 border-t">
     <TaskComments taskId={task.id} author="Admin" role={"ADMIN"} />
     <TaskTimeline taskId={task.id} />
+    </div>
+  )}
 </div>
 
                   );
