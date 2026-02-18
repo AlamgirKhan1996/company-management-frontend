@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://company-management-backend-2.onrender.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://company-management-backend-production.up.railway.app/",
   withCredentials: false,
 });
 
