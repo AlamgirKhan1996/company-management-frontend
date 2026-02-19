@@ -15,6 +15,7 @@ import { addTaskActivity } from "@/mocks/taskActivity";
 import TaskTimeline from "@/components/tasks/TaskTimeline";
 import { calculateTaskMetrics } from "@/lib/taskMetrics";
 import MetricCard from "@/components/ui/MetricCard";
+import api from "@/lib/api-client";
 
 
 const STATUSES: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
@@ -35,7 +36,11 @@ export default function ProjectTasksPage() {
   const employees = getEmployees();
 
   useEffect(() => {
-    setTasks(getTasksByProject(projectId));
+    async function fetchTasks() {
+      const res = await api.get(`/api/tasks?projectId=${projectId}`);
+      setTasks(res.data);
+    }
+    fetchTasks();
   }, [projectId]);
 
   const metrics = calculateTaskMetrics(tasks);
