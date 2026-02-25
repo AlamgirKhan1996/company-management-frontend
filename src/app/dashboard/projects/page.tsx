@@ -14,10 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import CreateProjectDialog from "@/components/Projects/CreateProjectDialog";
-import { USE_MOCK_API } from "@/lib/CreateProjectDialog";
-import { getMockProjects } from "@/mocks/projects";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api-client";
 
 
 type Project = {
@@ -34,31 +33,10 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // async function fetchProjects() {
-  //   try {
-  //     const res = await api.get("/api/projects");
-  //     setProjects(res.data);
-  //   } catch (error) {
-  //       const err = error as AxiosError<{ error: string }>;
-  //       toast.error(err.response?.data?.error || "Failed to load projects");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
   async function fetchProjects() {
     try {
-      if (USE_MOCK_API) {
-        const mockProjects = getMockProjects().map((p) => ({
-          ...p,
-          endDate: p.endDate ?? null,
-          createdBy: p.createdBy ? { id: "", ...p.createdBy } : undefined,
-        }));
-        setProjects(mockProjects);
-        return;
-      }
-
-      // const res = await api.get("/api/projects");
-      // setProjects(res.data);
+      const res = await api.get("/api/projects");
+      setProjects(res.data);
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       toast.error(err.response?.data?.error || "Failed to load projects");
@@ -66,7 +44,6 @@ export default function ProjectsPage() {
       setLoading(false);
     }
   }
-
 
   useEffect(() => {
     fetchProjects();

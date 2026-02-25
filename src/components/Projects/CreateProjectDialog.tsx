@@ -24,8 +24,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {AxiosError } from "axios";
-import { USE_MOCK_API } from "@/lib/CreateProjectDialog";
-import { createMockProject } from "@/mocks/projects";
 
 
 interface Props {
@@ -75,32 +73,11 @@ export default function CreateProjectDialog({ onCreated }: Props) {
   if (!name.trim()) return toast.error("Project name is required");
   if (!startDate) return toast.error("Start date is required");
 
-  const user = getUserFromToken();
-  if (!user) return toast.error("User not authenticated");
-  if (USE_MOCK_API) {
-  createMockProject({
-    name,
-    description,
-    status: status as
-      | "PLANNED"
-      | "IN_PROGRESS"
-      | "COMPLETED"
-      | "ON_HOLD",
-    startDate,
-    endDate: endDate || null,
-    departments: departments.filter(d => departmentIds.includes(d.id)),
-    createdBy: { email: user.email },
-  });
+    const user = getUserFromToken();
+    if (!user) return toast.error("User not authenticated");
 
-  toast.success("Project created (mock)");
-  onCreated();
-  setOpen(false);
-  return;
-}
-
-
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
    const payload = {
   name,
@@ -111,35 +88,31 @@ export default function CreateProjectDialog({ onCreated }: Props) {
   departmentIds,     // ✅ correct key
   userId: user.id,
 };
-
-console.log("PROJECT PAYLOAD", payload);
-
-
     await api.post("/api/projects", payload);
 
-    toast.success("Project created successfully");
-    onCreated();
-    setOpen(false);
+      toast.success("Project created successfully");
+      onCreated();
+      setOpen(false);
 
-    // reset
-    setName("");
-    setDescription("");
-    setStatus("TODO");
-    setStartDate("");
-    setEndDate("");
-    setDepartmentIds([]);
-  } catch (err) {
-    const error = err as AxiosError<{ error: string; message: string }>;
-    console.error("PROJECT CREATE ERROR:", error.response?.data || error);
-    toast.error(
-      error.response?.data?.error ||
-      error.response?.data?.message ||
-      "Failed to create project"
-    );
-  } finally {
-    setLoading(false);
+      // reset
+      setName("");
+      setDescription("");
+      setStatus("PLANNED");
+      setStartDate("");
+      setEndDate("");
+      setDepartmentIds([]);
+    } catch (err) {
+      const error = err as AxiosError<{ error: string; message: string }>;
+      console.error("PROJECT CREATE ERROR:", error.response?.data || error);
+      toast.error(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Failed to create project"
+      );
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
 
   return (
