@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import CreateDepartmentDialog from "../../../components/departments/CreateDepartmentDialog";
 import EditDepartmentDialog from "@/components/departments/edit-department-dialog";
 import DeleteDepartmentDialog from "@/components/departments/delete-department-dialog";
+import { usePathname } from "next/navigation";
 
 type Department = {
   id: string;
@@ -29,10 +29,11 @@ export default function DepartmentTable() {
       setLoading(false);
     }
   }
+  const pathname = usePathname();
 
   useEffect(() => {
     fetchDepartments();
-  }, []);
+  }, [pathname]);
 
   return (
     <div className="space-y-4">
