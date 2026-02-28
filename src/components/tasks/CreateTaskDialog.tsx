@@ -31,7 +31,7 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
   const [loading, setLoading] = useState(false);
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
-  const [assignToId, setAssignToId] = useState("");
+  const [assignToId, setAssignedToId] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ return (
 
             <select
               value={assignToId}
-              onChange={(e) => setAssignToId(e.target.value)}
+              onChange={(e) => setAssignedToId(e.target.value)}
               className="ml-4"
             >
               <option value="">Unassigned</option>
