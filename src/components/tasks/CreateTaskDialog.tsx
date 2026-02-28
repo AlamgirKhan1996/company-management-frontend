@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,12 +20,31 @@ interface Props {
   onCreated: () => void;
 }
 
+interface Employee {
+  id: string;
+  name: string;
+}
+
 export default function CreateTaskDialog({ projectId, onCreated }: Props) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
+  const [assignToId, setAssignToId] = useState("");
+  const [employees, setEmployees] = useState<Employee[]>([]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await api.get("/api/employees");
+        setEmployees(response.data);
+      } catch {
+        toast.error("Failed to load employees");
+      }
+    };
+    fetchEmployees();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,8 +56,9 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
       await api.post("/api/tasks", {
         title,
         projectId,
-        dueDate: dueDate || null,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         priority,
+        assignToId
       });
 
     toast.success("Task created");
@@ -82,6 +102,19 @@ return (
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
+            </select>
+
+            <select
+              value={assignToId}
+              onChange={(e) => setAssignToId(e.target.value)}
+              className="ml-4"
+            >
+              <option value="">Unassigned</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name}
+                </option>
+              ))}
             </select>
           </div>
 
