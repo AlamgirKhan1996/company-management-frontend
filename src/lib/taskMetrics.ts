@@ -1,4 +1,4 @@
-import { Task } from "@/mocks/tasks";
+import { Task } from "@/types/task";
 import { getDueStatus } from "@/lib/dateUtils";
 
 export function calculateTaskMetrics(tasks: Task[]) {

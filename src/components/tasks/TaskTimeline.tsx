@@ -1,9 +1,26 @@
 "use client";
+import { TaskActivity } from "@/types/activity";
+import { useEffect, useState } from "react";
+import api from "@/lib/api-client";
 
-import { getTaskActivities } from "@/mocks/taskActivity";
+interface Props {
+  taskId: string;
+}
 
-export default function TaskTimeline({ taskId }: { taskId: string }) {
-  const activities = getTaskActivities(taskId);
+export default function TaskTimeline({ taskId }: Props) {
+  const [activities, setActivities] = useState<TaskActivity[]>([]);
+
+  useEffect(() => {
+    async function fetchActivities() {
+      try {
+        const res = await api.get(`/api/tasks/${taskId}/activities`);
+        setActivities(res.data);
+      } catch (error) {
+        console.error("Failed to fetch task activities:", error);
+      }
+    }
+    fetchActivities();
+  }, [taskId]);
 
   if (!activities.length) return null;
 

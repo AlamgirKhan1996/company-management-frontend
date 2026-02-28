@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext,  useState, ReactNode } from "react";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 
@@ -12,18 +12,14 @@ const AuthContext = createContext<{
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-
-  // Restore user on refresh
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const userData = localStorage.getItem("user");
-
-    if (token && userData) {
-      setUser(JSON.parse(userData));
+  const [user, setUser] = useState<unknown | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
     }
-  }, []);
-
+    return null;
+  }
+  );
   async function login(email: unknown, password: unknown) {
     const res = await api.post("/auth/login", { email, password });
 

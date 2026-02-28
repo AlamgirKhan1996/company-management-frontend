@@ -4,34 +4,46 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { getCommentsByTask, addMockComment } from "@/mocks/comments";
+import { TaskComment } from "@/types/comments";
+import api from "@/lib/api-client";
 
 interface Props {
   taskId: string;
   author: string;
-  role: "ADMIN" | "EMPLOYEE";
+  role: string;
 }
 
 export default function TaskComments({ taskId, author, role }: Props) {
   const [message, setMessage] = useState("");
-  const [comments, setComments] = useState(getCommentsByTask(taskId));
+  const [comments, setComments] = useState<TaskComment[]>([]);
   const [open, setOpen] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  function submitComment() {
+  const fetchComments = async () => {
+    const res = await fetch(`/api/comments?taskId=${taskId}`);
+    const data = await res.json();
+    return data.comments as TaskComment[];
+  }
+
+  async function submitComment() {
     if (!message.trim()) return;
 
-    addMockComment(taskId, {
+    await api.post( 
+      "/api/comments",
+      {
+        content: message,
+        taskId,
       author,
       role,
       message,
     });
 
-    setComments(getCommentsByTask(taskId));
+    const updatedComments = await fetchComments();
+    setComments(updatedComments);
     setMessage("");
   }
-
+  
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
