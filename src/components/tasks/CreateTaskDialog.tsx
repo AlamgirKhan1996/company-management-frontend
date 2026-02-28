@@ -58,7 +58,8 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
         projectId,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         priority,
-        assignToId
+        assignToId,
+        description: "",
       });
 
     toast.success("Task created");
