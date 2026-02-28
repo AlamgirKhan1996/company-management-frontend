@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,10 +20,6 @@ interface Props {
   onCreated: () => void;
 }
 
-interface Employee {
-  id: string;
-  name: string;
-}
 
 export default function CreateTaskDialog({ projectId, onCreated }: Props) {
   const [open, setOpen] = useState(false);
@@ -31,20 +27,9 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
   const [loading, setLoading] = useState(false);
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
-  const [assignedToId, setAssignedToId] = useState("");
-  const [employees, setEmployees] = useState<Employee[]>([]);
+ 
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await api.get("/api/employees");
-        setEmployees(response.data);
-      } catch {
-        toast.error("Failed to load employees");
-      }
-    };
-    fetchEmployees();
-  }, []);
+  
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,7 +43,6 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
         projectId,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         priority,
-        assignedToId,
         status: "TODO",
       });
 
@@ -104,18 +88,6 @@ return (
               <option value="HIGH">High</option>
             </select>
 
-            <select
-              value={assignedToId}
-              onChange={(e) => setAssignedToId(e.target.value)}
-              className="ml-4"
-            >
-              <option value="">Unassigned</option>
-              {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <Button disabled={loading} className="w-full">
