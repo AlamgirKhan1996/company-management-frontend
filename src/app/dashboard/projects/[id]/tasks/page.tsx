@@ -4,21 +4,29 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Task, TaskStatus, getTasksByProject, updateMockTaskStatus } from "@/mocks/tasks";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import { Badge } from "@/components/ui/badge";
-import { getEmployees } from "@/mocks/employees";
-import { assignMockTask } from "@/mocks/tasks";
 import { getDueStatus } from "@/lib/dateUtils";
 import TaskComments from "@/components/tasks/taskComments";
-import { addTaskActivity } from "@/mocks/taskActivity";
 import TaskTimeline from "@/components/tasks/TaskTimeline";
 import { calculateTaskMetrics } from "@/lib/taskMetrics";
 import MetricCard from "@/components/ui/MetricCard";
 import api from "@/lib/api-client";
+import { Employee } from "@/types/employee";
 
 
-const STATUSES: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE" ;
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  dueDate?: string;
+  assignedToId?: string;
+  projectId: string;
+}
 
 
 
@@ -33,7 +41,19 @@ export default function ProjectTasksPage() {
   const projectId = params.id as string;
 
   const [tasks, setTasks] = useState<Task[]>([]);
-  const employees = getEmployees();
+  const [employees, setEmployees] = useState<Employee[]>([]);
+
+  useEffect(() => {
+    async function fetchEmployees() {
+      try {
+      const res = await api.get("/api/employees");
+      setEmployees(res.data);
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+      }
+    }
+    fetchEmployees();
+  }, []);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -110,13 +130,14 @@ export default function ProjectTasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {STATUSES.map((status) => (
+        {(["TODO", "IN_PROGRESS", "DONE"] as TaskStatus[]).map((status) => (
           <Card key={status}>
             <CardHeader>
               <CardTitle>{status.replace("_", " ")}</CardTitle>
 
-              <CreateTaskDialog projectId={projectId} onCreated={() => {
-  setTasks(getTasksByProject(projectId));
+              <CreateTaskDialog projectId={projectId} onCreated={ async () => {
+  const res = await api.get(`/api/tasks?projectId=${projectId}`);
+  setTasks(res.data);
 }} />
 
             </CardHeader>
@@ -160,19 +181,13 @@ export default function ProjectTasksPage() {
     </label>
     <Select
       value={task.assignedToId || ""}
-      onValueChange={(value) => {
-        assignMockTask(projectId, task.id, value);
+      onValueChange={async (value) => {
+        api.patch(`/api/tasks/${task.id}`, {
+          assignedToId: value
+        })
+        const res = await api.get(`/api/tasks?projectId=${projectId}`);
 
-        const emp = employees.find((e) => e.id === value);
-
-  addTaskActivity(
-    task.id,
-    "ASSIGNMENT",
-    emp
-      ? `Assigned to ${emp.name}`
-      : "Unassigned task"
-  );
-        setTasks(getTasksByProject(projectId));
+        setTasks(res.data);
       }}
     >
       
@@ -199,14 +214,10 @@ export default function ProjectTasksPage() {
     <label className="text-xs text-gray-400 block mb-1">Status</label>
     <Select
       value={task.status}
-      onValueChange={(value) => {
-        updateMockTaskStatus(projectId, task.id, value as TaskStatus);
-        addTaskActivity(
-    task.id,
-    "STATUS",
-    `Status changed to ${value}`
-  );
-        setTasks(getTasksByProject(projectId));
+      onValueChange={async (value) => {
+       await api.put(`/api/tasks/${task.id}/status`, {status: value})
+       const res = await api.get(`/api/tasks?projectId=${projectId}`);
+       setTasks(res.data);
       }}
     >
 
