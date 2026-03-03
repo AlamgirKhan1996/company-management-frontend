@@ -61,9 +61,8 @@ export default function CreateTaskDialog({ projectId, onCreated }: Props) {
       await api.post("/api/tasks", {
         title,
         projectId,
-        employeeId: assignedToId,
+        assignedToId,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-        priority,
         status: "TODO",
       });
 
