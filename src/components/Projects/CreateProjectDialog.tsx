@@ -39,7 +39,7 @@ type Department = {
 
 const STATUSES = [
   { label: "Planned", value: "PLANNED" },
-  { label: "In Progress", value: "IN_PROGRESS" },
+  { label: "Active", value: "ACTIVE" },
   { label: "Completed", value: "COMPLETED" },
   { label: "On Hold", value: "ON_HOLD" },
 ];
