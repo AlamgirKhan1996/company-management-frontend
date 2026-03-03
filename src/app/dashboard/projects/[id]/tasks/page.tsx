@@ -215,7 +215,7 @@ export default function ProjectTasksPage() {
     <Select
       value={task.status}
       onValueChange={async (value) => {
-       await api.put(`/api/tasks/${task.id}/status`, {status: value})
+       await api.put(`/api/tasks/${task.id}`, {status: value})
        const res = await api.get(`/api/tasks?projectId=${projectId}`);
        setTasks(res.data);
       }}
