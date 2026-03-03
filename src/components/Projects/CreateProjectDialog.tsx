@@ -86,7 +86,6 @@ export default function CreateProjectDialog({ onCreated }: Props) {
   endDate: endDate || undefined,
   status,
   departmentIds,     // ✅ correct key
-  userId: user.id,
 };
     await api.post("/api/projects", payload);
 
