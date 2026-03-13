@@ -12,7 +12,7 @@ type UserShape = { email?: string; name?: string; id?: string } | null;
 
 export default function SettingsPage() {
   const auth = useAuth();
-  const user = auth?.user as UserShape;
+  const user = auth?.currentUser as UserShape;
   const email = user?.email ?? "";
   const name = user?.name ?? "";
 

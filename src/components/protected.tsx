@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface ProtectedProps {
   children: ReactNode;
@@ -9,14 +10,14 @@ interface ProtectedProps {
 
 export default function Protected({ children }: ProtectedProps) {
   const router = useRouter();
+  const auth = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      router.replace("/login");
-    }
+    if (!auth?.isHydrated) return;
+    if (!auth.token) router.replace("/login");
   }, [router]);
 
+  if (!auth?.isHydrated) return null;
+  if (!auth.token) return null;
   return <>{children}</>;
 }

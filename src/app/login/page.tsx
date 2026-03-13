@@ -1,35 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import api from "@/lib/api-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AxiosError } from "axios";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
   e.preventDefault();
 
     try {
-      const res = await api.post("/api/auth/login", { email, password });
-
-      const token = res.data.token;
-      localStorage.setItem("token", token);
-
+      setLoading(true);
+      if (!auth) throw new Error("Auth not initialized");
+      await auth.login(email, password);
       toast.success("Logged in successfully");
       router.replace("/dashboard");
     } catch (err: unknown) {
       console.error(err);
       const error = err as AxiosError<{ error: string }>;
       toast.error(error.response?.data?.error || "Failed to login");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -66,9 +69,19 @@ export default function LoginPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Login
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
             </Button>
+
+            <div className="text-center text-sm text-gray-600">
+              Don&apos;t have a company yet?{" "}
+              <Link
+                href="/register-company"
+                className="font-medium text-gray-900 underline underline-offset-4"
+              >
+                Register your company
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>

@@ -61,16 +61,3 @@ export default function Sidebar() {
     </div>
   );
 }
-<div className="mt-auto p-4">
-  <button
-    onClick={() => {
-      localStorage.removeItem("token");
-      document.cookie = "token=; path=/; max-age=0;";
-      window.location.href = "/login";
-    }}
-    className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700"
-  >
-    Logout
-  </button>
-</div>
-
