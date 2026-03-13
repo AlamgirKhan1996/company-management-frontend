@@ -9,8 +9,17 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyId");
+
     if (token) {
+      config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (companyId) {
+      config.headers = config.headers ?? {};
+      // Common multi-tenant header; backend can read this.
+      (config.headers as any)["x-company-id"] = companyId;
     }
   }
   return config;
