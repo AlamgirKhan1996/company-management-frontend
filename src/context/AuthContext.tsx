@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else if (!company && nextUser?.companyId) {
       // Optional: try to resolve company info if backend supports it.
       try {
-        const cRes = await api.get(`/api/companies/${nextUser.companyId}`);
+        const cRes = await api.get("/api/companies/me");
         const c: CompanyInfo | null = cRes.data?.company ?? cRes.data ?? null;
         if (c?.id && c?.name) {
           setCompany(c);
