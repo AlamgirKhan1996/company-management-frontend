@@ -40,9 +40,9 @@ export default function CreateDepartmentDialog({ onCreated }: Props) {
       await api.post("/api/departments", { name });
 
       toast.success("Department created successfully");
+      await onCreated();
       setOpen(false);
       setName("");
-      onCreated();
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
       toast.error(error.response?.data?.error || "Failed to create department");

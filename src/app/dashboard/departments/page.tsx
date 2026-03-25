@@ -33,7 +33,11 @@ export default function DepartmentsPage() {
     try {
       setLoading(true);
       const res = await api.get("/api/departments");
-      setDepartments(res.data);
+      // ✅ FIX: guard against unexpected response shapes
+    const data = Array.isArray(res.data)
+      ? res.data
+      : res.data?.departments ?? res.data?.data ?? [];
+      setDepartments(data);
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
       toast.error(error.response?.data?.error || "Failed to load departments");

@@ -156,6 +156,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(LS_KEYS.token, nextToken);
       setToken(nextToken);
 
+      document.cookie = `token=${nextToken}; path=/; max-age=86400; SameSite=Lax`;
+
       if (nextUser) {
         localStorage.setItem(LS_KEYS.user, JSON.stringify(nextUser));
         setCurrentUser(nextUser);
