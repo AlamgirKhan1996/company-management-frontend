@@ -26,7 +26,9 @@ export default function LoginPage() {
       if (!auth) throw new Error("Auth not initialized");
       await auth.login(email, password);
       toast.success("Logged in successfully");
-      router.replace("/dashboard");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 300);
     } catch (err: unknown) {
       console.error(err);
       const error = err as AxiosError<{ error: string }>;
