@@ -3,21 +3,17 @@
 import { useState } from "react";
 import api from "@/lib/api-client";
 import { toast } from "sonner";
-
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogHeader,
+  DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AxiosError } from "axios";
 
 interface Props {
+  // ✅ Simple sync callback — no async contract, no awaiting complexity
   onCreated: () => void;
 }
 
@@ -36,13 +32,15 @@ export default function CreateDepartmentDialog({ onCreated }: Props) {
 
     try {
       setLoading(true);
-
       await api.post("/api/departments", { name });
 
-      toast.success("Department created successfully");
-      await onCreated();
+      // ✅ Close dialog and reset form first
       setOpen(false);
       setName("");
+      toast.success("Department created successfully");
+
+      // ✅ Then fire the refresh trigger — simple, sync, reliable
+      onCreated();
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
       toast.error(error.response?.data?.error || "Failed to create department");
@@ -64,15 +62,15 @@ export default function CreateDepartmentDialog({ onCreated }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Department Name</Label>
+            <Label htmlFor="dept-name">Department Name</Label>
             <Input
-              id="name"
+              id="dept-name"
               placeholder="e.g. Human Resources"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              autoFocus
             />
           </div>
-
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Creating..." : "Create Department"}
           </Button>
