@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import CreateEmployeeDialog from "@/components/employee/create-employee-dialog";
 import EditEmployeeDialog from "@/components/employee/edit-employee-dialog";
 import DeleteEmployeeDialog from "@/components/employee/delete-employee-dialog";
@@ -11,6 +17,8 @@ import DeleteEmployeeDialog from "@/components/employee/delete-employee-dialog";
 type Employee = {
   id: string;
   name: string;
+  email: string;
+  role: string;
   createdAt: string;
 };
 
@@ -46,49 +54,50 @@ export default function EmployeeTable() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
 
-<TableBody>
-  {loading ? (
-    <TableRow>
-      <TableCell colSpan={2}>Loading...</TableCell>
-    </TableRow>
-  ) : employees.length === 0 ? (
-    <TableRow>
-      <TableCell colSpan={2}>No employees found</TableCell>
-    </TableRow>
-  ) : (
-    employees.map((emp) => (
-      <TableRow key={emp.id}>
-        <TableCell>{emp.name}</TableCell>
-        <TableCell>{new Date(emp.createdAt).toLocaleDateString()}</TableCell>
-        <TableCell className="flex gap-2">
-          <EditEmployeeDialog
-            id={emp.id}
-            name={emp.name}
-            onUpdated={fetchEmployees}
-          />
-        </TableCell>
-        <TableCell className="flex gap-2">
-  <EditEmployeeDialog
-    id={emp.id}
-    name={emp.name}
-    onUpdated={fetchEmployees}
-  />
-
-  <DeleteEmployeeDialog
-    id={emp.id}
-    name={emp.name}
-    onDeleted={fetchEmployees}
-  />
-</TableCell>
-
-      </TableRow>
-    ))
-  )}
-</TableBody>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5}>Loading...</TableCell>
+              </TableRow>
+            ) : employees.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5}>No employees found</TableCell>
+              </TableRow>
+            ) : (
+              employees.map((emp) => (
+                <TableRow key={emp.id}>
+                  <TableCell>{emp.name}</TableCell>
+                  <TableCell>{emp.email}</TableCell>
+                  <TableCell>{emp.role}</TableCell>
+                  <TableCell>
+                    {new Date(emp.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  {/* BUG FIXED: one single actions cell — was rendering Edit twice */}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <EditEmployeeDialog
+                        id={emp.id}
+                        name={emp.name}
+                        onUpdated={fetchEmployees}
+                      />
+                      <DeleteEmployeeDialog
+                        id={emp.id}
+                        name={emp.name}
+                        onDeleted={fetchEmployees}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
         </Table>
       </div>
     </div>

@@ -2,11 +2,17 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api-client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import CreateDepartmentDialog from "../../../components/departments/CreateDepartmentDialog";
 import EditDepartmentDialog from "@/components/departments/edit-department-dialog";
 import DeleteDepartmentDialog from "@/components/departments/delete-department-dialog";
-import { usePathname } from "next/navigation";
 
 type Department = {
   id: string;
@@ -29,11 +35,10 @@ export default function DepartmentTable() {
       setLoading(false);
     }
   }
-  const pathname = usePathname();
 
   useEffect(() => {
     fetchDepartments();
-  }, [pathname]);
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -48,48 +53,47 @@ export default function DepartmentTable() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Created</TableHead>
+              {/* BUG FIXED: original had two separate TableHead + two separate
+                  TableCell columns for actions, causing Edit to appear twice */}
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
 
-<TableBody>
-  {loading ? (
-    <TableRow>
-      <TableCell colSpan={2}>Loading...</TableCell>
-    </TableRow>
-  ) : departments.length === 0 ? (
-    <TableRow>
-      <TableCell colSpan={2}>No departments found</TableCell>
-    </TableRow>
-  ) : (
-    departments.map((dept) => (
-      <TableRow key={dept.id}>
-        <TableCell>{dept.name}</TableCell>
-        <TableCell>{new Date(dept.createdAt).toLocaleDateString()}</TableCell>
-        <TableCell className="flex gap-2">
-          <EditDepartmentDialog
-            id={dept.id}
-            name={dept.name}
-            onUpdated={fetchDepartments}
-          />
-        </TableCell>
-        <TableCell className="flex gap-2">
-  <EditDepartmentDialog
-    id={dept.id}
-    name={dept.name}
-    onUpdated={fetchDepartments}
-  />
-
-  <DeleteDepartmentDialog
-    id={dept.id}
-    name={dept.name}
-    onDeleted={fetchDepartments}
-  />
-</TableCell>
-
-      </TableRow>
-    ))
-  )}
-</TableBody>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={3}>Loading...</TableCell>
+              </TableRow>
+            ) : departments.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3}>No departments found</TableCell>
+              </TableRow>
+            ) : (
+              departments.map((dept) => (
+                <TableRow key={dept.id}>
+                  <TableCell>{dept.name}</TableCell>
+                  <TableCell>
+                    {new Date(dept.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  {/* BUG FIXED: one single actions cell with both buttons */}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <EditDepartmentDialog
+                        id={dept.id}
+                        name={dept.name}
+                        onUpdated={fetchDepartments}
+                      />
+                      <DeleteDepartmentDialog
+                        id={dept.id}
+                        name={dept.name}
+                        onDeleted={fetchDepartments}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
         </Table>
       </div>
     </div>

@@ -18,11 +18,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api-client";
 
+type ProjectStatus =
+  | "PLANNED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "ON_HOLD"
+  | "TODO"
+  | "DONE";
 
 type Project = {
   id: string;
   name: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE" | "PLANNED" | "COMPLETED" | "ON_HOLD";
+  status: ProjectStatus;
   startDate: string;
   endDate: string | null;
   departments: { id: string; name: string }[];
@@ -35,6 +42,7 @@ export default function ProjectsPage() {
 
   async function fetchProjects() {
     try {
+      setLoading(true);
       const res = await api.get("/api/projects");
       setProjects(res.data);
     } catch (error) {
@@ -49,29 +57,36 @@ export default function ProjectsPage() {
     fetchProjects();
   }, []);
 
-  
-
-  const statusColor = (status: Project["status"]) => {
+  // BUG FIXED: original switch only handled TODO/IN_PROGRESS/DONE —
+  // the backend sends PLANNED/IN_PROGRESS/COMPLETED/ON_HOLD which all
+  // fell through to undefined, making Badge crash with an invalid variant.
+  const statusColor = (
+    status: ProjectStatus
+  ): "default" | "secondary" | "outline" | "destructive" => {
     switch (status) {
-      case "TODO":
-        return "secondary";
       case "IN_PROGRESS":
         return "default";
+      case "COMPLETED":
       case "DONE":
+        return "secondary";
+      case "ON_HOLD":
+        return "destructive";
+      case "PLANNED":
+      case "TODO":
+      default:
         return "outline";
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Projects</h1>
-        <p className="text-gray-500 mt-1">
-          Manage all company projects
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Projects</h1>
+          <p className="text-gray-500 mt-1">Manage all company projects</p>
+        </div>
+        <CreateProjectDialog onCreated={fetchProjects} />
       </div>
-
-      <CreateProjectDialog onCreated={fetchProjects} />
 
       <Card>
         <CardHeader>
@@ -98,7 +113,7 @@ export default function ProjectsPage() {
               <TableBody>
                 {projects.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-gray-500">
+                    <TableCell colSpan={7} className="text-center text-gray-500">
                       No projects found
                     </TableCell>
                   </TableRow>
@@ -106,9 +121,7 @@ export default function ProjectsPage() {
 
                 {projects.map((project) => (
                   <TableRow key={project.id}>
-                    <TableCell className="font-medium">
-                      {project.name}
-                    </TableCell>
+                    <TableCell className="font-medium">{project.name}</TableCell>
 
                     <TableCell>
                       <Badge variant={statusColor(project.status)}>
@@ -139,17 +152,16 @@ export default function ProjectsPage() {
                     </TableCell>
 
                     <TableCell>
-                      {project.createdBy?.email || "-"}
+                      {project.createdBy?.name || project.createdBy?.email || "-"}
                     </TableCell>
 
                     <TableCell>
-  <Link href={`/dashboard/projects/${project.id}/tasks`}>
-    <Button size="sm" variant="outline">
-      View Tasks
-    </Button>
-  </Link>
-</TableCell>
-
+                      <Link href={`/dashboard/projects/${project.id}/tasks`}>
+                        <Button size="sm" variant="outline">
+                          View Tasks
+                        </Button>
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
