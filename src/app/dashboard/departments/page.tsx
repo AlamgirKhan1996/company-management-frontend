@@ -14,24 +14,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
-type Department = {
-  id: string;
-  name: string;
-  createdAt: string;
-};
+type Department = { id: string; name: string; createdAt: string };
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
-  // ✅ KEY FIX: trigger state — incrementing this reliably fires useEffect
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchDepartments = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/departments");
+      const res = await api.get("/api/departments", {
+        // ✅ THE CORE FIX — force bypass any browser/proxy cache
+        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" },
+        params: { _t: Date.now() }, // cache-buster query param
+      });
 
-      // ✅ Guard all possible response shapes from the backend
       const data: Department[] = Array.isArray(res.data)
         ? res.data
         : res.data?.departments ?? res.data?.data ?? [];
@@ -39,20 +36,15 @@ export default function DepartmentsPage() {
       setDepartments(data);
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
-      console.error("[DepartmentsPage] fetch error:", err);
       toast.error(error.response?.data?.error || "Failed to load departments");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // ✅ Re-runs whenever refreshKey changes (on mount AND after any mutation)
   useEffect(() => {
     fetchDepartments();
-  }, [fetchDepartments, refreshKey]);
-
-  // ✅ Simple, synchronous callback — no async prop contracts needed
-  const handleRefresh = () => setRefreshKey((k) => k + 1);
+  }, [fetchDepartments]);
 
   return (
     <div className="space-y-6">
@@ -61,13 +53,12 @@ export default function DepartmentsPage() {
           <h1 className="text-3xl font-bold">Departments</h1>
           <p className="text-gray-500 mt-1">Manage all company departments</p>
         </div>
-        <CreateDepartmentDialog onCreated={handleRefresh} />
+        {/* ✅ Pass fetchDepartments directly — no refreshKey middleman needed */}
+        <CreateDepartmentDialog onCreated={fetchDepartments} />
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Departments List</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Departments List</CardTitle></CardHeader>
         <CardContent>
           {loading ? (
             <Skeleton className="h-40 w-full" />
@@ -99,12 +90,12 @@ export default function DepartmentsPage() {
                           <EditDepartmentDialog
                             id={dept.id}
                             name={dept.name}
-                            onUpdated={handleRefresh}
+                            onUpdated={fetchDepartments}
                           />
                           <DeleteDepartmentDialog
                             id={dept.id}
                             name={dept.name}
-                            onDeleted={handleRefresh}
+                            onDeleted={fetchDepartments}
                           />
                         </div>
                       </TableCell>

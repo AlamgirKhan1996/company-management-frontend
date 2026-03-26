@@ -13,8 +13,8 @@ import { Label } from "@/components/ui/label";
 import { AxiosError } from "axios";
 
 interface Props {
-  // ✅ Simple sync callback — no async contract, no awaiting complexity
-  onCreated: () => void;
+  // ✅ Accept async function — fetchDepartments returns Promise<void>
+  onCreated: () => Promise<void> | void;
 }
 
 export default function CreateDepartmentDialog({ onCreated }: Props) {
@@ -24,23 +24,18 @@ export default function CreateDepartmentDialog({ onCreated }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!name.trim()) {
-      toast.error("Department name is required");
-      return;
-    }
+    if (!name.trim()) { toast.error("Department name is required"); return; }
 
     try {
       setLoading(true);
       await api.post("/api/departments", { name });
 
-      // ✅ Close dialog and reset form first
+      // ✅ Await the fetch BEFORE closing — list is populated before dialog disappears
+      await onCreated();
+
       setOpen(false);
       setName("");
       toast.success("Department created successfully");
-
-      // ✅ Then fire the refresh trigger — simple, sync, reliable
-      onCreated();
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
       toast.error(error.response?.data?.error || "Failed to create department");
@@ -54,12 +49,10 @@ export default function CreateDepartmentDialog({ onCreated }: Props) {
       <DialogTrigger asChild>
         <Button>Add Department</Button>
       </DialogTrigger>
-
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Department</DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="dept-name">Department Name</Label>
