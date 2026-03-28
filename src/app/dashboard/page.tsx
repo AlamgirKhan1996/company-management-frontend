@@ -49,7 +49,6 @@ type RecentEmployee = {
   name: string;
   role: string;
   department?: { name: string };
-  createdAt: string;
 };
 
 type DashboardStats = {
@@ -489,8 +488,9 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-[11px] text-gray-400 flex-shrink-0 ml-2">
-                    <Clock className="h-3 w-3" />
-                    {new Date(emp.createdAt).toLocaleDateString()}
+                    <span className="text-[11px] text-gray-400">
+                   {emp.role}{emp.department?.name && ` · ${emp.department.name}`}
+                   </span>
                   </div>
                 </div>
               ))
