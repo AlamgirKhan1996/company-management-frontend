@@ -23,7 +23,7 @@ const menuItems = [
   { name: "Tasks", icon: ClipboardList, href: "/dashboard/tasks" },
   { name: "Users", icon: Users, href: "/dashboard/users" },
   { name: "Settings", icon: Settings, href: "/dashboard/settings" },
-  { href: "/dashboard/ai-employees", label: "AI Employees", icon: Bot }
+  { name: "AI Employees", icon: Bot, href: "/dashboard/ai-employees" }
 ];
 
 export default function Sidebar() {
