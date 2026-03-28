@@ -10,6 +10,8 @@ import {
   Menu,
   ChevronLeft,
   Bot,
+  Store,
+  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -23,7 +25,9 @@ const menuItems = [
   { name: "Tasks", icon: ClipboardList, href: "/dashboard/tasks" },
   { name: "Users", icon: Users, href: "/dashboard/users" },
   { name: "Settings", icon: Settings, href: "/dashboard/settings" },
-  { name: "AI Employees", icon: Bot, href: "/dashboard/ai-employees" }
+  { name: "AI Employees", icon: Bot, href: "/dashboard/ai-employees" },
+  { name: "All Tasks", icon: Layers, href: "/dashboard/tasks" },
+  { name: "Marketplace", icon: Store, href: "/dashboard/marketplace" },
 ];
 
 export default function Sidebar() {

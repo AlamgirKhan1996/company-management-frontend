@@ -156,7 +156,7 @@ export default function ProjectsPage() {
                     </TableCell>
 
                     <TableCell>
-                      <Link href={`/dashboard/projects/${project.id}/tasks`}>
+                      <Link href={`/dashboard/tasks?projectId=${project.id}`}>
                         <Button size="sm" variant="outline">
                           View Tasks
                         </Button>
