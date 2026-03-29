@@ -12,6 +12,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import RoleGuard from "@/components/auth/RoleGuard";
 import { Button } from "@/components/ui/button";
 import {
   Activity, Search, ChevronLeft, ChevronRight,
@@ -128,6 +129,7 @@ export default function ActivityPage() {
     : logs;
 
   return (
+    <RoleGuard minRole="USER">
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -333,5 +335,6 @@ export default function ActivityPage() {
         </div>
       )}
     </div>
+    </RoleGuard>
   );
 }

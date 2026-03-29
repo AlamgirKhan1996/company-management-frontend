@@ -12,6 +12,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import RoleGuard from "@/components/auth/RoleGuard";
 import {
   Table, TableBody, TableCell,
   TableHead, TableHeader, TableRow,
@@ -449,8 +450,10 @@ function TasksContent() {
 
 export default function GlobalTasksPage() {
   return (
-    <Suspense fallback={<div className="space-y-4"><Skeleton className="h-20" /><Skeleton className="h-64" /></div>}>
-      <TasksContent />
-    </Suspense>
+    <RoleGuard minRole="EMPLOYEE">
+      <Suspense fallback={<div className="space-y-4"><Skeleton className="h-20" /><Skeleton className="h-64" /></div>}>
+        <TasksContent />
+      </Suspense>
+    </RoleGuard>
   );
 }

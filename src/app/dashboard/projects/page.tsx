@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import RoleGuard from "@/components/auth/RoleGuard";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -85,7 +86,9 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold">Projects</h1>
           <p className="text-gray-500 mt-1">Manage all company projects</p>
         </div>
-        <CreateProjectDialog onCreated={fetchProjects} />
+        <RoleGuard minRole="ADMIN">
+          <CreateProjectDialog onCreated={fetchProjects} />
+        </RoleGuard>
       </div>
 
       <Card>

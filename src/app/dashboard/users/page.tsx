@@ -19,6 +19,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import RoleGuard from "@/components/auth/RoleGuard";
 import { Badge } from "@/components/ui/badge";
 
 type User = {
@@ -65,6 +66,7 @@ export default function UsersPage() {
   };
 
   return (
+    <RoleGuard minRole="ADMIN">
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -134,6 +136,7 @@ export default function UsersPage() {
         </CardContent>
       </Card>
     </div>
+      </RoleGuard>
   );
 }
 

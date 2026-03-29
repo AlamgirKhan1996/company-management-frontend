@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bot, Briefcase, CheckCircle2, Clock, } from "lucide-react";
+import RoleGuard from "@/components/auth/RoleGuard";
 import Link from "next/link";
 import CreateAIEmployeeDialog from "@/components/ai-employees/CreateAIEmployeeDialog";
 
@@ -74,6 +75,7 @@ export default function AIEmployeesPage() {
   const totalTasks = agents.reduce((sum, a) => sum + a._count.tasks, 0);
 
   return (
+    <RoleGuard minRole="ADMIN">
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -214,5 +216,6 @@ export default function AIEmployeesPage() {
         </div>
       )}
     </div>
+    </RoleGuard>
   );
 }

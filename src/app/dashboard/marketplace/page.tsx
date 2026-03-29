@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import RoleGuard from "@/components/auth/RoleGuard";
 import {
   Bot, Search, Download, Star, Shield,
   TrendingUp, Users, Code2, DollarSign,
@@ -206,6 +207,7 @@ export default function MarketplacePage() {
   }
 
   return (
+    <RoleGuard minRole="ADMIN">
     <div className="space-y-8 max-w-7xl">
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-8 text-white">
@@ -423,5 +425,8 @@ export default function MarketplacePage() {
         </button>
       </div>
     </div>
+    </RoleGuard>
   );
 }
+    
+  
