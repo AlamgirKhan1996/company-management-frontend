@@ -11,6 +11,7 @@ import {
   Bot,
   Store,
   Layers,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -21,10 +22,11 @@ const menuItems = [
   { name: "Departments", icon: Building2, href: "/dashboard/departments" },
   { name: "Employees", icon: Users, href: "/dashboard/employees" },
   { name: "Projects", icon: FolderKanban, href: "/dashboard/projects" },
+  { name: "All Tasks", icon: Layers, href: "/dashboard/tasks" },
+  { name: "Activity Log", icon: Activity ,href: "/dashboard/activity",},
   { name: "Users", icon: Users, href: "/dashboard/users" },
   { name: "Settings", icon: Settings, href: "/dashboard/settings" },
   { name: "AI Employees", icon: Bot, href: "/dashboard/ai-employees" },
-  { name: "All Tasks", icon: Layers, href: "/dashboard/tasks" },
   { name: "Marketplace", icon: Store, href: "/dashboard/marketplace" },
 ];
 

@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import RoleGuard from "@/components/auth/RoleGuard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,7 +59,9 @@ export default function EmployeesPage() {
         </div>
 
         {/* ✅ No reload needed anymore */}
-        <CreateEmployeeDialog onCreated={fetchEmployees} />
+        <RoleGuard minRole="ADMIN">
+          <CreateEmployeeDialog onCreated={fetchEmployees} />
+        </RoleGuard>
       </div>
 
       <Card>
@@ -96,17 +99,19 @@ export default function EmployeesPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
+                          <RoleGuard minRole="ADMIN">
 
                       <EditEmployeeDialog
                         id={emp.id}
                         name={emp.name}
                         onUpdated={fetchEmployees}
-                        />
+                        /> </RoleGuard>
+                      <RoleGuard minRole="ADMIN">
                  <DeleteEmployeeDialog
                  id={emp.id}
                  name={emp.name}
                  onDeleted={fetchEmployees}
-                 />
+                 /> </RoleGuard>
                  </div>
 </TableCell>
 

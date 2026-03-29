@@ -10,6 +10,7 @@ import {
   Table, TableBody, TableCell,
   TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import RoleGuard from "@/components/auth/RoleGuard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -54,7 +55,9 @@ export default function DepartmentsPage() {
           <p className="text-gray-500 mt-1">Manage all company departments</p>
         </div>
         {/* ✅ Pass fetchDepartments directly — no refreshKey middleman needed */}
-        <CreateDepartmentDialog onCreated={fetchDepartments} />
+        <RoleGuard minRole="ADMIN">
+          <CreateDepartmentDialog onCreated={fetchDepartments} />
+        </RoleGuard>
       </div>
 
       <Card>
@@ -87,16 +90,20 @@ export default function DepartmentsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <EditDepartmentDialog
-                            id={dept.id}
-                            name={dept.name}
-                            onUpdated={fetchDepartments}
-                          />
-                          <DeleteDepartmentDialog
-                            id={dept.id}
-                            name={dept.name}
-                            onDeleted={fetchDepartments}
-                          />
+                          <RoleGuard minRole="ADMIN">
+                            <EditDepartmentDialog
+                              id={dept.id}
+                              name={dept.name}
+                              onUpdated={fetchDepartments}
+                            />
+                          </RoleGuard>
+                          <RoleGuard minRole="ADMIN">
+                            <DeleteDepartmentDialog
+                              id={dept.id}
+                              name={dept.name}
+                              onDeleted={fetchDepartments}
+                            />
+                          </RoleGuard>
                         </div>
                       </TableCell>
                     </TableRow>
