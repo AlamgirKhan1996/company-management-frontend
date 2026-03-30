@@ -31,48 +31,61 @@ export default function RegisterCompanyPage() {
     password: "",
   });
 
-  const errors = useMemo(() => {
-    const e: Partial<Record<keyof FormState, string>> = {};
-    if (!form.companyName.trim()) e.companyName = "Company name is required";
-    if (!form.companyEmail.trim()) e.companyEmail = "Company email is required";
-    if (!form.adminName.trim()) e.adminName = "Admin name is required";
-    if (!form.adminEmail.trim()) e.adminEmail = "Admin email is required";
-    if (form.password.length < 8) e.password = "Password must be at least 8 characters";
-    return e;
-  }, [form]);
+const BLOCKED = ["example.com","test.com","fake.com","mailinator.com","yopmail.com"];
 
-  const isValid = Object.keys(errors).length === 0;
+function isFakeEmail(email: string) {
+  const domain = email.split("@")[1]?.toLowerCase();
+  return BLOCKED.includes(domain);
+}
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!isValid) {
-      toast.error("Please fix the form errors");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await api.post("/api/auth/register-company", {
-        companyName: form.companyName.trim(),
-        companyEmail: form.companyEmail.trim(),
-        adminName: form.adminName.trim(),
-        adminEmail: form.adminEmail.trim(),
-        password: form.password,
-      });
-
-      toast.success("Company registered successfully. Please log in.");
-      router.replace("/login");
-    } catch (err) {
-      const error = err as AxiosError<{ error?: string; message?: string }>;
-      toast.error(
-        error.response?.data?.error ||
-          error.response?.data?.message ||
-          "Registration failed"
-      );
-    } finally {
-      setLoading(false);
-    }
+const errors = useMemo(() => {
+  const e: Partial<Record<keyof FormState, string>> = {};
+  if (!form.companyName.trim()) e.companyName = "Company name is required";
+  if (!form.companyEmail.trim()) e.companyEmail = "Company email is required";
+  if (!form.adminName.trim()) e.adminName = "Admin name is required";
+  if (!form.adminEmail.trim()) e.adminEmail = "Admin email is required";
+  if (form.password.length < 8) e.password = "Password must be at least 8 characters";
+  if (isFakeEmail(form.adminEmail)) {
+    e.adminEmail = "Please use a real email address";
   }
+  if (isFakeEmail(form.companyEmail)) {
+    e.companyEmail = "Please use a real business email";
+  }
+  return e;
+}, [form]);
+
+const isValid = Object.keys(errors).length === 0;
+
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  if (!isValid) {
+    toast.error("Please fix the form errors");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    await api.post("/api/auth/register-company", {
+      companyName: form.companyName.trim(),
+      companyEmail: form.companyEmail.trim(),
+      adminName: form.adminName.trim(),
+      adminEmail: form.adminEmail.trim(),
+      password: form.password,
+    });
+
+    toast.success("Company registered successfully. Please log in.");
+    router.replace("/login");
+  } catch (err) {
+    const error = err as AxiosError<{ error?: string; message?: string }>;
+    toast.error(
+      error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Registration failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+}
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-12">
