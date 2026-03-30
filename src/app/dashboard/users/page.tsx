@@ -21,6 +21,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { Badge } from "@/components/ui/badge";
+import InviteMemberDialog from "@/components/users/InviteMemberDialog";
 
 type User = {
   id: string;
@@ -69,6 +70,11 @@ export default function UsersPage() {
     <RoleGuard minRole="ADMIN">
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <div>
+          <RoleGuard minRole="ADMIN">
+            <InviteMemberDialog onInvited={fetchUsers} />
+          </RoleGuard>
+        </div>
         <div>
           <h1 className="text-3xl font-bold">Users</h1>
           <p className="text-gray-500 mt-1">

@@ -8,6 +8,8 @@ export function middleware(req: NextRequest) {
 
   const isAuthPage = req.nextUrl.pathname.startsWith("/login");
   const isDashboard = req.nextUrl.pathname.startsWith("/dashboard");
+  const isPublic = req.nextUrl.pathname.startsWith("/accept-invite");
+if (isPublic) return NextResponse.next();
 
   // Logged in + trying to reach login → send to dashboard
   if (token && isAuthPage) {
