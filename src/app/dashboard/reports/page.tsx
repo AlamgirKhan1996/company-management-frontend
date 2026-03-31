@@ -229,57 +229,91 @@ export default function ReportsPage() {
           api.get("/api/projects"),
           api.get("/api/users"),
         ]);
-        setDepartments(deptRes.data?.departments ?? deptRes.data ?? []);
-        setProjects(projRes.data?.projects ?? projRes.data ?? []);
-        setUsers(userRes.data?.users ?? userRes.data ?? []);
-      } catch {
-        // Filters are best-effort; silently ignore
-      }
-    };
-    loadFilters();
-  }, []);
+
+     const toArray = (d: unknown): unknown[] => {
+        if (Array.isArray(d)) return d;
+        if (d && typeof d === "object") {
+          for (const key of ["departments","projects","users","data"]) {
+            const val = (d as Record<string, unknown>)[key];
+            if (Array.isArray(val)) return val;
+          }
+        }
+        return [];
+      };
+
+      setDepartments(toArray(deptRes.data) as Department[]);
+      setProjects(toArray(projRes.data) as Project[]);
+      setUsers(toArray(userRes.data) as User[]);
+    } catch {
+      // Filters are best-effort — page still works without them
+    }
+  };
+  loadFilters();
+}, []);
 
   // ─── Fetch report data ──────────────────────────────────────────────────
   const fetchReports = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    else setRefreshing(true);
+  if (!silent) setLoading(true);
+  else setRefreshing(true);
 
-    const params = buildParams();
+  const params = buildParams();
 
-    const [overviewRes, trendsRes, deptRes, healthRes] = await Promise.allSettled([
-      api.get("/api/reports/overview", { params }),
-      api.get("/api/reports/tasks/trends", { params }),
-      api.get("/api/reports/departments", { params }),
-      api.get("/api/reports/projects/health", { params }),
-    ]);
+  // Helper — backend wraps in { success, data } — unwrap safely
+  function unwrap(res: { data: { data?: unknown; trends?: unknown; departments?: unknown; projects?: unknown } }, arrayKey?: string) {
+    const raw = res.data?.data ?? res.data;
+    if (!arrayKey) return raw;
+    const val = (raw as Record<string, unknown>)?.[arrayKey] ?? raw;
+    return Array.isArray(val) ? val : [];
+  }
 
-    if (overviewRes.status === "fulfilled") {
-      setOverview(overviewRes.value.data);
-    } else {
-      const err = overviewRes.reason as AxiosError<{ error: string }>;
-      toast.error(err.response?.data?.error || "Failed to load overview");
-      setOverview(null);
-    }
+  const [overviewRes, trendsRes, deptRes, healthRes] = await Promise.allSettled([
+    api.get("/api/reports/overview", { params }),
+    api.get("/api/reports/tasks/trends", { params }),
+    api.get("/api/reports/departments", { params }),
+    api.get("/api/reports/projects/health", { params }),
+  ]);
 
-    setTrends(
-      trendsRes.status === "fulfilled"
-        ? (trendsRes.value.data?.trends ?? trendsRes.value.data ?? [])
-        : []
-    );
-    setDeptStats(
-      deptRes.status === "fulfilled"
-        ? (deptRes.value.data?.departments ?? deptRes.value.data ?? [])
-        : []
-    );
-    setProjectHealth(
-      healthRes.status === "fulfilled"
-        ? (healthRes.value.data?.projects ?? healthRes.value.data ?? [])
-        : []
-    );
+  if (overviewRes.status === "fulfilled") {
+    // Overview may be nested under .data or at top level
+    const raw = overviewRes.value.data;
+    setOverview(raw?.data ?? raw ?? null);
+  } else {
+    setOverview(null);
+  }
 
-    setLoading(false);
-    setRefreshing(false);
-  }, [buildParams]);
+  setTrends(
+    trendsRes.status === "fulfilled"
+      ? (() => {
+          const raw = trendsRes.value.data?.data ?? trendsRes.value.data;
+          const arr = raw?.trends ?? raw;
+          return Array.isArray(arr) ? arr : [];
+        })()
+      : []
+  );
+
+  setDeptStats(
+    deptRes.status === "fulfilled"
+      ? (() => {
+          const raw = deptRes.value.data?.data ?? deptRes.value.data;
+          const arr = raw?.departments ?? raw;
+          return Array.isArray(arr) ? arr : [];
+        })()
+      : []
+  );
+
+  setProjectHealth(
+    healthRes.status === "fulfilled"
+      ? (() => {
+          const raw = healthRes.value.data?.data ?? healthRes.value.data;
+          const arr = raw?.projects ?? raw;
+          return Array.isArray(arr) ? arr : [];
+        })()
+      : []
+  );
+
+  setLoading(false);
+  setRefreshing(false);
+}, [buildParams]);
 
   useEffect(() => {
     fetchReports();
@@ -287,31 +321,29 @@ export default function ReportsPage() {
 
   // ─── CSV Export ─────────────────────────────────────────────────────────
   const handleExport = async () => {
-    try {
-      setExporting(true);
-      const params = buildParams();
-      const res = await api.get("/api/reports/export", {
-        params,
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      const start = params.startDate;
-      const end = params.endDate;
-      link.setAttribute("download", `report-${start}-to-${end}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      toast.success("Report exported successfully");
-    } catch (err) {
-      const error = err as AxiosError<{ error: string }>;
-      toast.error(error.response?.data?.error || "Export failed");
-    } finally {
-      setExporting(false);
-    }
-  };
+  try {
+    setExporting(true);
+    const params = buildParams();
+    const res = await api.get("/api/reports/export/tasks", {  // ← fixed URL
+      params,
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `tasks-report-${params.startDate}-to-${params.endDate}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    toast.success("Report exported successfully");
+  } catch (err) {
+    const error = err as AxiosError<{ error: string }>;
+    toast.error(error.response?.data?.error || "Export failed");
+  } finally {
+    setExporting(false);
+  }
+};
 
   // ─── Loading ─────────────────────────────────────────────────────────────
   if (loading) return <ReportsSkeleton />;
