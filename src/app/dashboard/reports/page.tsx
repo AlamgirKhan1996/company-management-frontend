@@ -341,7 +341,10 @@ export default function ReportsPage() {
     );
   }
 
-  const { taskSummary, projectHealth: ph } = overview;
+  const {
+    taskSummary = { completionRate: 0, overdueRate: 0, completed: 0, total: 0, overdue: 0, inProgress: 0 },
+    projectHealth: ph = { onTrack: 0, atRisk: 0, overdue: 0, total: 0 },
+  } = overview;
 
   // Pie data for project health
   const healthPieData = [
