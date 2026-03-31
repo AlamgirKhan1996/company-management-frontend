@@ -6,7 +6,7 @@ import { useRole } from "@/hooks/useRole";
 import {
   LayoutDashboard, Building2, Users, FolderKanban,
   Layers, Bot, Store, Activity, Settings,
-  UserCog, ChevronRight, Sparkles,
+  UserCog, ChevronRight, Sparkles, BarChart2,
 } from "lucide-react";
 
 type NavItem = {
@@ -54,6 +54,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: Bot,
     minRole: "MANAGER",
     badge: "AI",
+  },
+  {
+    href: "/dashboard/reports",
+    label: "Reports",
+    icon: BarChart2,
+    minRole: "MANAGER",
   },
   {
     href: "/dashboard/marketplace",
