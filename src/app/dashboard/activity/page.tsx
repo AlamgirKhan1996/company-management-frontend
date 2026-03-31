@@ -129,7 +129,7 @@ export default function ActivityPage() {
     : logs;
 
   return (
-    <RoleGuard minRole="USER">
+    <RoleGuard minRole="EMPLOYEE">
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">

@@ -57,17 +57,17 @@ const roles = [
       toast.error("Employee name is required");
       return;
     }
+    if (!departmentId) {
+      toast.error("Department is required");
+      return;
+    }
+    if (!role) {
+      toast.error("Role is required");
+      return;
+    }
 
     try {
       setLoading(true);
-      if (!departmentId) {
-  toast.error("Department is required");
-  return;
-}
-if (!role) {
-  toast.error("Role is required");
-  return;
-}
 
       await api.post("/api/employees", { name, email, departmentId, role });
 
@@ -78,7 +78,6 @@ if (!role) {
       setDepartmentId("");
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
-      console.log("EMPLOYEE CREATE ERROR:", error.response?.data);
       toast.error(error.response?.data?.error || "Failed to create employee");
     } finally {
       setLoading(false);
@@ -125,7 +124,6 @@ if (!role) {
     value={role}
     onValueChange={(value) => {
       setRole(value);
-      console.log("Selected role:", value);
     }}
   >
     <SelectTrigger>
@@ -153,7 +151,6 @@ if (!role) {
               value={departmentId}
               onValueChange={(value) => {
                 setDepartmentId(value);
-                console.log("Selected department:", value); // 👈 debug
               }}
             >
               <SelectTrigger>

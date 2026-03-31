@@ -59,7 +59,7 @@ export default function EditEmployeeDialog({ id, name, onUpdated }: Props) {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Department</DialogTitle>
+          <DialogTitle>Edit Employee</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">

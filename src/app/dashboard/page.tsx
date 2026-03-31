@@ -487,11 +487,6 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-gray-400 flex-shrink-0 ml-2">
-                    <span className="text-[11px] text-gray-400">
-                   {emp.role}{emp.department?.name && ` · ${emp.department.name}`}
-                   </span>
-                  </div>
                 </div>
               ))
             )}

@@ -14,6 +14,8 @@ export function calculateTaskMetrics(tasks: Task[]) {
     (t) => getDueStatus(t.dueDate, t.status) === "OVERDUE"
   ).length;
 
+  const highPriority = tasks.filter((t) => t.priority === "HIGH").length;
+
   const completionRate =
     total === 0 ? 0 : Math.round((done / total) * 100);
 
@@ -23,6 +25,7 @@ export function calculateTaskMetrics(tasks: Task[]) {
     inProgress,
     done,
     overdue,
+    highPriority,
     completionRate,
   };
 }

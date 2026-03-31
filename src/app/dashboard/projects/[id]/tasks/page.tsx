@@ -13,20 +13,7 @@ import { calculateTaskMetrics } from "@/lib/taskMetrics";
 import MetricCard from "@/components/ui/MetricCard";
 import api from "@/lib/api-client";
 import { Employee } from "@/types/employee";
-
-
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE" ;
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: "LOW" | "MEDIUM" | "HIGH";
-  dueDate?: string;
-  assignedToId?: string;
-  projectId: string;
-}
+import { Task, TaskStatus } from "@/types/task";
 
 
 
@@ -57,8 +44,12 @@ export default function ProjectTasksPage() {
 
   useEffect(() => {
     async function fetchTasks() {
-      const res = await api.get(`/api/tasks?projectId=${projectId}`);
-      setTasks(res.data);
+      try {
+        const res = await api.get(`/api/tasks?projectId=${projectId}`);
+        setTasks(res.data);
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+      }
     }
     fetchTasks();
   }, [projectId]);
@@ -182,11 +173,10 @@ export default function ProjectTasksPage() {
     <Select
       value={task.assignedToId || ""}
       onValueChange={async (value) => {
-        api.patch(`/api/tasks/${task.id}`, {
-          assignedToId: value
-        })
+        await api.patch(`/api/tasks/${task.id}`, {
+          assignedToId: value,
+        });
         const res = await api.get(`/api/tasks?projectId=${projectId}`);
-
         setTasks(res.data);
       }}
     >

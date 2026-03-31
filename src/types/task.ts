@@ -6,8 +6,10 @@ export type Task = {
   title: string;
   description?: string;
   status: TaskStatus;
+  priority: TaskPriority;
   dueDate?: string;
   projectId: string;
+  assignedToId?: string;
   employee?: {
     id: string;
     name: string;
