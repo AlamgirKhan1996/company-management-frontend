@@ -241,30 +241,44 @@ export default function ReportsPage() {
 
   // ─── Fetch report data ──────────────────────────────────────────────────
   const fetchReports = useCallback(async (silent = false) => {
-    try {
-      if (!silent) setLoading(true);
-      else setRefreshing(true);
+    if (!silent) setLoading(true);
+    else setRefreshing(true);
 
-      const params = buildParams();
+    const params = buildParams();
 
-      const [overviewRes, trendsRes, deptRes, healthRes] = await Promise.all([
-        api.get("/api/reports/overview", { params }),
-        api.get("/api/reports/tasks/trends", { params }),
-        api.get("/api/reports/departments", { params }),
-        api.get("/api/reports/projects/health", { params }),
-      ]);
+    const [overviewRes, trendsRes, deptRes, healthRes] = await Promise.allSettled([
+      api.get("/api/reports/overview", { params }),
+      api.get("/api/reports/tasks/trends", { params }),
+      api.get("/api/reports/departments", { params }),
+      api.get("/api/reports/projects/health", { params }),
+    ]);
 
-      setOverview(overviewRes.data);
-      setTrends(trendsRes.data?.trends ?? trendsRes.data ?? []);
-      setDeptStats(deptRes.data?.departments ?? deptRes.data ?? []);
-      setProjectHealth(healthRes.data?.projects ?? healthRes.data ?? []);
-    } catch (err) {
-      const error = err as AxiosError<{ error: string }>;
-      toast.error(error.response?.data?.error || "Failed to load reports");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+    if (overviewRes.status === "fulfilled") {
+      setOverview(overviewRes.value.data);
+    } else {
+      const err = overviewRes.reason as AxiosError<{ error: string }>;
+      toast.error(err.response?.data?.error || "Failed to load overview");
+      setOverview(null);
     }
+
+    setTrends(
+      trendsRes.status === "fulfilled"
+        ? (trendsRes.value.data?.trends ?? trendsRes.value.data ?? [])
+        : []
+    );
+    setDeptStats(
+      deptRes.status === "fulfilled"
+        ? (deptRes.value.data?.departments ?? deptRes.value.data ?? [])
+        : []
+    );
+    setProjectHealth(
+      healthRes.status === "fulfilled"
+        ? (healthRes.value.data?.projects ?? healthRes.value.data ?? [])
+        : []
+    );
+
+    setLoading(false);
+    setRefreshing(false);
   }, [buildParams]);
 
   useEffect(() => {
@@ -301,7 +315,31 @@ export default function ReportsPage() {
 
   // ─── Loading ─────────────────────────────────────────────────────────────
   if (loading) return <ReportsSkeleton />;
-  if (!overview) return null;
+
+  if (!overview) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Reports & Analytics</h1>
+          <p className="text-gray-500 text-sm mt-1">Could not load report data</p>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center space-y-3">
+          <AlertTriangle className="h-8 w-8 text-red-400 mx-auto" />
+          <p className="text-sm font-medium text-red-700">Overview data unavailable</p>
+          <p className="text-xs text-red-500 max-w-md mx-auto">
+            The reports API returned an error. This is likely a backend configuration issue.
+            Check the network tab for details.
+          </p>
+          <button
+            onClick={() => fetchReports()}
+            className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const { taskSummary, projectHealth: ph } = overview;
 
