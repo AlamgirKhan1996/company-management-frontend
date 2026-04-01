@@ -4,7 +4,7 @@ import Protected from "@/components/protected";
 import Sidebar from "@/components/sidebar/sidebar";
 import { ReactNode } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+// import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { useAuth } from "@/context/AuthContext";
 import { OnboardingProvider } from "@/context/OnboardingContext";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
@@ -12,7 +12,7 @@ import WelcomeModal from "@/components/onboarding/WelcomeModal";
 
 // ─── Inner layout — has access to all hooks ───────────────────────────────────
 function DashboardInner({ children }: { children: ReactNode }) {
-  useSessionTimeout(); // Auto logout after 30 min inactivity
+  // useSessionTimeout(); // Auto logout after 30 min inactivity
 
   return (
     <div className="flex">
