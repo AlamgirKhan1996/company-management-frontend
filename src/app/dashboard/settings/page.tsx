@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { User, Building2, LogOut } from "lucide-react";
-import RoleGuard from "@/components/auth/RoleGuard";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 type UserShape = { email?: string; name?: string; id?: string } | null;
 
-export default function SettingsPage() {
+function SettingsContent() {
   const auth = useAuth();
   const user = auth?.currentUser as UserShape;
   const email = user?.email ?? "";
@@ -29,8 +29,6 @@ export default function SettingsPage() {
   };
 
   return (
-
-  <RoleGuard minRole="EMPLOYEE">
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
@@ -120,6 +118,13 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
     </div>
-  </RoleGuard>
   );
+}
+
+export default function SettingsPage() {
+  return (
+      <ErrorBoundary>
+        <SettingsContent />
+      </ErrorBoundary>
+   );
 }

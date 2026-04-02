@@ -23,6 +23,7 @@ import RoleGuard from "@/components/auth/RoleGuard";
 import { Badge } from "@/components/ui/badge";
 import InviteMemberDialog from "@/components/users/InviteMemberDialog";
 import ResponsiveTable from "@/components/ui/ResponsiveTable";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 type User = {
   id: string;
@@ -33,7 +34,7 @@ type User = {
   createdAt?: string;
 };
 
-export default function UsersPage() {
+function UsersContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,3 +98,10 @@ export default function UsersPage() {
   );
 }
 
+export default function UsersPage() {
+  return (
+    <ErrorBoundary>
+      <UsersContent />
+    </ErrorBoundary>
+   );
+}

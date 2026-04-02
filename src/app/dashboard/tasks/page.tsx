@@ -17,6 +17,7 @@ import {
   Layers, Calendar, FolderKanban, Bot,
   TrendingUp, Target,
 } from "lucide-react";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 type Task = {
   id: string;
@@ -50,7 +51,7 @@ function getDaysUntilDue(dueDate?: string, status?: string) {
   return diff;
 }
 
-export default function MyTasksPage() {
+function MyTasksContent() {
   const auth = useAuth();
   const { role, isAdmin, isManager } = useRole();
 
@@ -352,5 +353,13 @@ export default function MyTasksPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TasksPage() {
+  return (
+    <ErrorBoundary>
+      <MyTasksContent />
+    </ErrorBoundary>
   );
 }

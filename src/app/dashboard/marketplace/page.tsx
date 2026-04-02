@@ -13,6 +13,7 @@ import {
   Headphones, Megaphone, Scale, BarChart3,
   Upload, Sparkles, CheckCircle2,
 } from "lucide-react";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 interface AgentTemplate {
   id: string;
@@ -167,7 +168,7 @@ const TEMPLATES: AgentTemplate[] = [
 
 const CATEGORIES = ["All", "HR", "Sales", "Finance", "Engineering", "Support", "Marketing", "Legal", "Analytics"];
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [installing, setInstalling] = useState<string | null>(null);
@@ -427,6 +428,14 @@ export default function MarketplacePage() {
     </div>
     </RoleGuard>
   );
+}
+
+export default function MarketplacePage() {
+  return (
+    <ErrorBoundary>
+      <MarketplaceContent />
+    </ErrorBoundary>
+   );
 }
     
   

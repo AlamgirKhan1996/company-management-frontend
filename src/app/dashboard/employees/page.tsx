@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { useCompleteStep } from "@/hooks/useCompleteStep";
 import { Users } from "lucide-react";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 type Employee = {
   id: string;
@@ -22,7 +23,7 @@ type Employee = {
   department?: { name: string };
 };
 
-export default function EmployeesPage() {
+function EmployeesContent() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -120,5 +121,13 @@ export default function EmployeesPage() {
         }))}
       />
     </div>
+  );
+}
+
+export default function EmployeesPage() {
+  return (
+    <ErrorBoundary>
+      <EmployeesContent />
+    </ErrorBoundary>
   );
 }

@@ -21,7 +21,7 @@ import {
   Download, RefreshCw, Building2, Target, Calendar,
   Gauge, ArrowUpRight, ArrowDownRight, Minus,
 } from "lucide-react";
-
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ReportOverview = {
@@ -185,7 +185,7 @@ function ReportsSkeleton() {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function ReportsPage() {
+function ReportsContent() {
   // Filter state
   const [preset, setPreset] = useState(1); // index into DATE_PRESETS — default 30 days
   const [departmentId, setDepartmentId] = useState("all");
@@ -882,5 +882,13 @@ export default function ReportsPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+export default function ReportsPage() {
+  return (
+    <ErrorBoundary>
+      <ReportsContent />
+    </ErrorBoundary>
   );
 }

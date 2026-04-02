@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCompleteStep } from "@/hooks/useCompleteStep";
 import { FolderKanban, ExternalLink } from "lucide-react";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 type ProjectStatus = "PLANNED" | "IN_PROGRESS" | "COMPLETED" | "ON_HOLD" | "TODO" | "DONE";
 
@@ -34,7 +35,7 @@ const STATUS_COLOR: Record<string, string> = {
   TODO:        "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-export default function ProjectsPage() {
+function ProjectsContent() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -142,4 +143,12 @@ export default function ProjectsPage() {
       />
     </div>
   );
+}
+
+export default function ProjectsPage() {
+  return (
+    <ErrorBoundary>
+      <ProjectsContent />
+    </ErrorBoundary>
+   );
 }

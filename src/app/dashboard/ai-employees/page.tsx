@@ -11,6 +11,7 @@ import { Bot, Briefcase, CheckCircle2, Clock, } from "lucide-react";
 import RoleGuard from "@/components/auth/RoleGuard";
 import Link from "next/link";
 import CreateAIEmployeeDialog from "@/components/ai-employees/CreateAIEmployeeDialog";
+import {ErrorBoundary} from "@/components/errors/ErrorBoundary";
 
 type AIEmployee = {
   id: string;
@@ -48,7 +49,7 @@ function getInitials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
-export default function AIEmployeesPage() {
+function AIEmployeesContent() {
   const [agents, setAgents] = useState<AIEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -217,5 +218,13 @@ export default function AIEmployeesPage() {
       )}
     </div>
     </RoleGuard>
+  );
+}
+
+export default function AIEmployeesPage() {
+  return (
+    <ErrorBoundary>
+      <AIEmployeesContent />
+    </ErrorBoundary>
   );
 }

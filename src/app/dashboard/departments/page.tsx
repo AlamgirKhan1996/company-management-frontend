@@ -11,10 +11,14 @@ import RoleGuard from "@/components/auth/RoleGuard";
 import ResponsiveTable from "@/components/ui/ResponsiveTable";
 import { useCompleteStep } from "@/hooks/useCompleteStep";
 import { Building2 } from "lucide-react";
+import {
+  ErrorBoundary
+} from "@/components/errors/ErrorBoundary";
 
 type Department = { id: string; name: string; createdAt: string };
 
-export default function DepartmentsPage() {
+
+function DepartmentsContent() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -99,5 +103,14 @@ export default function DepartmentsPage() {
         }))}
       />
     </div>
+  );
+}
+
+export default function DepartmentsPage() {
+  return (   
+    <ErrorBoundary>
+      <DepartmentsContent />
+    </ErrorBoundary>
+   
   );
 }

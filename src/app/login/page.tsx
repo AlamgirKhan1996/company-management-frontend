@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AxiosError } from "axios";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const auth = useAuth();
   
@@ -90,3 +91,12 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <ErrorBoundary>
+      <LoginContent />
+    </ErrorBoundary>
+  );
+}
+

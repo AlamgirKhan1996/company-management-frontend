@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 type FormState = {
   companyName: string;
@@ -20,7 +21,7 @@ type FormState = {
   password: string;
 };
 
-export default function RegisterCompanyPage() {
+function RegisterCompanyContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<FormState>({
@@ -201,6 +202,14 @@ async function handleSubmit(e: React.FormEvent) {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function RegisterCompanyPage() {
+  return (
+    <ErrorBoundary>
+      <RegisterCompanyContent />
+    </ErrorBoundary>
   );
 }
 

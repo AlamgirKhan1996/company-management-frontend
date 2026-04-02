@@ -129,6 +129,7 @@ export default function ActivityPage() {
     : logs;
 
   return (
+    
     <RoleGuard minRole="EMPLOYEE">
     <div className="space-y-6">
       {/* Header */}
