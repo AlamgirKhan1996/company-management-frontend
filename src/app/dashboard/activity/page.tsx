@@ -166,6 +166,7 @@ export default function ActivityPage() {
               />
             </div>
 
+            <RoleGuard minRole="ADMIN">
             <Select value={filterEntity} onValueChange={(v) => { setFilterEntity(v); setPage(1); }}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Entity" />
@@ -177,6 +178,7 @@ export default function ActivityPage() {
                 ))}
               </SelectContent>
             </Select>
+            </RoleGuard>
 
             <Select value={filterAction} onValueChange={(v) => { setFilterAction(v); setPage(1); }}>
               <SelectTrigger className="w-48">
