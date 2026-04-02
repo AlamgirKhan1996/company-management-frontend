@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { Badge } from "@/components/ui/badge";
 import InviteMemberDialog from "@/components/users/InviteMemberDialog";
+import ResponsiveTable from "@/components/ui/ResponsiveTable";
 
 type User = {
   id: string;
@@ -67,7 +68,6 @@ export default function UsersPage() {
   };
 
   return (
-    <RoleGuard minRole="ADMIN">
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -83,66 +83,17 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Users List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <Skeleton className="h-40 w-full" />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created At</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-center text-gray-500"
-                    >
-                      No users found
-                    </TableCell>
-                  </TableRow>
-                )}
-
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.name || "-"}
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role || "-"}</TableCell>
-                    <TableCell>
-                      {user.status ? (
-                        <Badge variant={statusVariant(user.status)}>
-                          {String(user.status).toUpperCase()}
-                        </Badge>
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {user.createdAt
-                        ? new Date(user.createdAt).toLocaleDateString()
-                        : "-"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <ResponsiveTable
+  title="Users List"
+  loading={loading}
+  empty="No users found"
+  columns={["Name", "Email", "Role", "Status"]}
+  rows={users.map(u => ({
+    key: u.id,
+    cells: [u.name, u.email, u.role, u.status]
+  }))}
+/>
     </div>
-      </RoleGuard>
   );
 }
 
