@@ -120,3 +120,113 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Prevent horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Mobile-safe touch targets — all buttons minimum 44px */
+@media (max-width: 768px) {
+  button, [role="button"], a {
+    min-height: 36px;
+  }
+
+  /* Tables — allow horizontal scroll on mobile as fallback */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Card padding tighter on mobile */
+  .card-mobile-compact {
+    padding: 12px !important;
+  }
+
+  /* Stack flex rows on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Full width buttons on mobile */
+  .mobile-full {
+    width: 100% !important;
+  }
+}
+
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Better tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: rgba(99, 102, 241, 0.1);
+}
+
+/* Fix recharts responsiveness */
+.recharts-responsive-container {
+  min-width: 0 !important;
+}
+
+/* Safe area for notched phones */
+@supports (padding: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .safe-top {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+}
+
+/* Prevent text overflow everywhere */
+.truncate-mobile {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Dialog / modal full screen on mobile */
+@media (max-width: 640px) {
+  [role="dialog"] {
+    margin: 8px !important;
+    max-height: calc(100vh - 16px) !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Fix recharts on small screens */
+@media (max-width: 768px) {
+  .recharts-wrapper {
+    font-size: 10px !important;
+  }
+  .recharts-legend-wrapper {
+    font-size: 10px !important;
+  }
+}
+
+/* Notification bell position on mobile */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    right: -8px !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 320px !important;
+  }
+}
+
+/* Onboarding checklist — smaller on mobile */
+@media (max-width: 640px) {
+  .onboarding-widget {
+    bottom: 16px !important;
+    right: 8px !important;
+    left: 8px !important;
+    width: auto !important;
+  }
+}
+
