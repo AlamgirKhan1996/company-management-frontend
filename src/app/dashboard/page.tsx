@@ -184,7 +184,7 @@ function DashboardContent() {
   const pieData = [
     { name: "Todo", value: tasks.todo },
     { name: "In Progress", value: tasks.inProgress },
-    { name: "Done", value: tasks.done },
+    // { name: "Done", value: tasks.done },
   ].filter((d) => d.value > 0);
 
   return (
@@ -305,7 +305,7 @@ function DashboardContent() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
             {[
-              { label: "Completed",    value: tasks.done,         total: tasks.total, color: "bg-green-400"  },
+              // { label: "Completed",    value: tasks.done,         total: tasks.total, color: "bg-green-400"  },
               { label: "In Progress",  value: tasks.inProgress,   total: tasks.total, color: "bg-blue-400"   },
               { label: "Todo",         value: tasks.todo,         total: tasks.total, color: "bg-gray-300"   },
               { label: "Overdue",      value: tasks.overdue,      total: tasks.total, color: "bg-red-400"    },
